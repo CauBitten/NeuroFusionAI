@@ -4,22 +4,22 @@ from tensorflow.keras.models import Model
 
 def build_inception_concat_model(input_shape=(299, 299, 3), num_classes=3):
     '''
-    Cria o modelo Inception-v3 com concatenação das saídas dos blocos mixed7, mixed8 e mixed9.
+    Cria o modelo Inception-v3 com concatenação das saídas dos blocos mixed3, mixed7 e mixed10.
     '''
     base_model = InceptionV3(weights='imagenet', include_top=False, input_shape=input_shape)
 
     # Extrai saídas intermediárias dos blocos indicados
+    layer_mixed3 = base_model.get_layer('mixed3').output
     layer_mixed7 = base_model.get_layer('mixed7').output
-    layer_mixed8 = base_model.get_layer('mixed8').output
-    layer_mixed9 = base_model.get_layer('mixed9').output
+    layer_mixed10 = base_model.get_layer('mixed10').output
 
     # Global average pooling em cada saída
+    gap3 = GlobalAveragePooling2D()(layer_mixed3)
     gap7 = GlobalAveragePooling2D()(layer_mixed7)
-    gap8 = GlobalAveragePooling2D()(layer_mixed8)
-    gap9 = GlobalAveragePooling2D()(layer_mixed9)
+    gap10 = GlobalAveragePooling2D()(layer_mixed10)
 
     # Concatenação das três representações
-    concatenated = Concatenate()([gap7, gap8, gap9])
+    concatenated = Concatenate()([gap3, gap7, gap10])
 
     # Camadas densas finais
     x = Dropout(0.4)(concatenated)
